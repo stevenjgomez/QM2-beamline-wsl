@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "QM2"
+version = "1.0.0"
+dependencies = [
+    "nxrefine"
+]
+
+[project.entry-points."nxrefine.beamlines"]
+beamline = "QM2:QM2BeamLine"
