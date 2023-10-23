@@ -169,7 +169,7 @@ class QM2BeamLine(NXBeamLine):
                     self.read_images(files, image_shape))
 
     def read_logs(self):
-        spec_file = self.raw_directory / self.sample
+        spec_file = self.raw_directory.parent / self.sample
         if not spec_file.exists():
             self.reduce.logger.info(f"'{spec_file}' does not exist")
             raise NeXusError('SPEC file not found')
