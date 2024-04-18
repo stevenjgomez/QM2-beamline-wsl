@@ -186,29 +186,18 @@ class QM2BeamLine(NXBeamLine):
             if 'date' in logs:
                 self.entry['start_time'] = logs['date']
                 self.entry['data/frame_time'].attrs['start'] = logs['date']
-            if 'flyc1' in logs['data']:
-                if 'monitor1' in self.entry:
-                    del self.entry['monitor1']
-                data = logs['data/flyc1'][:frames]
+            if self.monitor in logs['data']:
+                data = logs[f'data/{self.monitor}'][:frames]
+                if 'monitor' in self.entry:
+                    del self.entry['monitor']
                 # Remove outliers at beginning and end of frames
                 data[0:2] = data[2]
                 data[-2:] = data[-3]
-                self.entry['monitor1'] = NXmonitor(NXfield(data, name='flyc1'),
-                                                   frame_number)
+                self.entry['monitor'] = NXmonitor(NXfield(data,
+                                                          name=self.monitor),
+                                                  frame_number)
                 if 'data/frame_time' in self.entry:
-                    self.entry['monitor1/frame_time'] = (
-                        self.entry['data/frame_time'])
-            if 'flyc2' in logs['data']:
-                if 'monitor2' in self.entry:
-                    del self.entry['monitor2']
-                data = logs['data/flyc2'][:frames]
-                # Remove outliers at beginning and end of frames
-                data[0:2] = data[2]
-                data[-2:] = data[-3]
-                self.entry['monitor2'] = NXmonitor(NXfield(data, name='flyc2'),
-                                                   frame_number)
-                if 'data/frame_time' in self.entry:
-                    self.entry['monitor2/frame_time'] = (
+                    self.entry['monitor/frame_time'] = (
                         self.entry['data/frame_time'])
             if 'instrument' not in self.entry:
                 self.entry['instrument'] = NXinstrument()
@@ -240,3 +229,22 @@ class QM2BeamLine(NXBeamLine):
                 self.root['entry/sample/temperature'].attrs['units'] = 'K'
             if 'sample' not in self.entry:
                 self.entry.makelink(self.root['entry/sample'])
+
+    def read_monitor(self, monitor=None):       
+        try:
+            if monitor is None:
+                if self.monitor is None:
+                    monitor = self.settings['nxreduce']['monitor']
+                else:
+                    monitor = self.monitor
+            if monitor in self.entry:
+                monitor_signal = self.entry[monitor].nxsignal
+            elif monitor in self.entry['instrument/logs/data']:
+                monitor_signal = self.entry[
+                    f'instrument/logs/data/{monitor}']
+            monitor_signal = monitor_signal.nxvalue[:self.reduce.nframes]
+            monitor_signal[0:2] = monitor_signal[2]
+            monitor_signal[-2:] = monitor_signal[-3]
+            return monitor_signal / self.reduce.norm
+        except Exception:
+            return np.ones(shape=(self.reduce.nframes), dtype=float)
