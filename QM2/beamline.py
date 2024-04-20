@@ -239,9 +239,8 @@ class QM2BeamLine(NXBeamLine):
                     monitor = self.monitor
             if monitor in self.entry:
                 monitor_signal = self.entry[monitor].nxsignal
-            elif monitor in self.entry['instrument/logs/data']:
-                monitor_signal = self.entry[
-                    f'instrument/logs/data/{monitor}']
+            elif monitor in self.entry['logs/data']:
+                monitor_signal = self.entry[f'logs/data/{monitor}']
             monitor_signal = monitor_signal.nxvalue[:self.reduce.nframes]
             monitor_signal[0:2] = monitor_signal[2]
             monitor_signal[-2:] = monitor_signal[-3]
