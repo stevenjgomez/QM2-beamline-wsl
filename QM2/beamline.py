@@ -171,7 +171,7 @@ class QM2BeamLine(NXBeamLine):
     def read_logs(self):
         spec_file = self.raw_directory.parent / self.sample
         if not spec_file.exists():
-            self.reduce.logger.info(f"'{spec_file}' does not exist")
+            self.reduce.log(f"'{spec_file}' does not exist")
             raise NeXusError('SPEC file not found')
 
         with self.reduce:
@@ -246,4 +246,5 @@ class QM2BeamLine(NXBeamLine):
             monitor_signal[-2:] = monitor_signal[-3]
             return monitor_signal / self.reduce.norm
         except Exception:
+            self.reduce.log(f"Cannot identify monitor {self.monitor}")
             return np.ones(shape=(self.reduce.nframes), dtype=float)
