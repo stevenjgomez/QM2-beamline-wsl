@@ -94,7 +94,10 @@ class QM2BeamLine(NXBeamLine):
             match = prefix_pattern.match(filename.stem)
             if match and filename.suffix in ['.cbf', '.tif', '.tiff']:
                 prefixes.append(match.group(1).strip('-').strip('_'))
-        return max(prefixes, key=prefixes.count)
+        try:
+            return max(prefixes, key=prefixes.count)
+        except ValueError:
+            raise NeXusError(f'No image files found in {self.image_directory}')
 
     def get_index(self, name, directory=False):
         try:
