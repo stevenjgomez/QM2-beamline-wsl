@@ -33,16 +33,16 @@ class QM2BeamLine(NXBeamLine):
             scans = Path(to_posix(scans))
         y_size, x_size = self.config_file['f1/instrument/detector/shape']
         for scan in [s for s in scans.iterdir() if s.is_dir()]:
-            scan_name = self.sample+'_'+scan.name+'.nxs'
+            scan_name = self.sample+'_'+scan.name+'.nxs' # Yields ABC_100.nxs wrapper file
             scan_file = self.base_directory / scan_name
             if scan_file.exists() and not overwrite:
                 continue
             scan_directories = [s.name for s in scan.glob(f'{self.sample}_*')
-                                if s.is_dir()]
+                                if s.is_dir()] # Finds the raw scan directories
             if len(scan_directories) == 0:
                 continue
             scan_directory = self.base_directory / scan.name
-            scan_directory.mkdir(exist_ok=True)
+            scan_directory.mkdir(exist_ok=True) # Creates the /100/ subfolder
             if overwrite:
                 mode = 'w'
             else:
@@ -63,7 +63,7 @@ class QM2BeamLine(NXBeamLine):
                         entry['scan_number'] = scan_number
                         entry['data'] = NXdata()
                         linkpath = '/entry/data/data'
-                        linkfile = scan_directory / f'f{i:d}.h5'
+                        linkfile = to_posix(scan_directory / f'f{i:d}.h5')
                         entry['data'].nxsignal = NXlink(linkpath, linkfile)
                         entry['data/x_pixel'] = np.arange(x_size, dtype=int)
                         entry['data/y_pixel'] = np.arange(y_size, dtype=int)
