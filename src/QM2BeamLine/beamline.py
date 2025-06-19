@@ -9,7 +9,7 @@ from nexusformat.nexus import (NeXusError, NXdata, NXentry, NXfield,
 from nexusformat.nexus.tree import natural_sort
 from nxrefine.nxbeamline import NXBeamLine
 from nxrefine.nxutils import SpecParser
-from nxrefine.nxos import to_wsl, is_wsl
+from nxrefine.nxos import to_posix, is_wsl
 
 prefix_pattern = re.compile(r'^([^.]+)(?:(?<!\d)|(?=_))')
 file_index_pattern = re.compile(r'^(.*?)([0-9]*)[.](.*)$')
@@ -30,7 +30,7 @@ class QM2BeamLine(NXBeamLine):
         self.config_file = nxopen(config_file)
         scans = self.raw_directory / self.sample / self.label
         if is_wsl():
-            scans = Path(to_wsl(scans))
+            scans = Path(to_posix(scans))
         y_size, x_size = self.config_file['f1/instrument/detector/shape']
         for scan in [s for s in scans.iterdir() if s.is_dir()]:
             scan_name = self.sample+'_'+scan.name+'.nxs'
@@ -85,7 +85,7 @@ class QM2BeamLine(NXBeamLine):
                                     self.sample / self.label /
                                     self.scan / scan_directory)
             if is_wsl():
-                self.image_directory = Path(to_wsl(self.image_directory))
+                self.image_directory = Path(to_posix(self.image_directory))
             entry_file = self.entry.nxname+'.h5temp'
             self.raw_file = self.directory / entry_file
             self.write_data()
