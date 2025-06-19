@@ -1,1 +1,1 @@
-from .beamline import QM2BeamLine
+from .beamline import qm2beamline
