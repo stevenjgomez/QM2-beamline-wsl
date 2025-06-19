@@ -67,7 +67,7 @@ class QM2BeamLine(NXBeamLine):
                         entry['data'].nxsignal = NXlink(linkpath, linkfile)
                         entry['data/x_pixel'] = np.arange(x_size, dtype=int)
                         entry['data/y_pixel'] = np.arange(y_size, dtype=int)
-                        self.image_directory = scan / s
+                        self.image_directory = Path(to_posix(scan / s))
                         frame_number = len(self.get_files())
                         entry['data/frame_number'] = np.arange(frame_number,
                                                                dtype=int)
