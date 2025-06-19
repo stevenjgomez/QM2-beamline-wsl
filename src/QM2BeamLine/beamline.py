@@ -1,4 +1,5 @@
 import re
+from pathlib import Path
 
 import fabio
 import numpy as np
@@ -8,6 +9,7 @@ from nexusformat.nexus import (NeXusError, NXdata, NXentry, NXfield,
 from nexusformat.nexus.tree import natural_sort
 from nxrefine.nxbeamline import NXBeamLine
 from nxrefine.nxutils import SpecParser
+from nxrefine.nxos import to_wsl, is_wsl
 
 prefix_pattern = re.compile(r'^([^.]+)(?:(?<!\d)|(?=_))')
 file_index_pattern = re.compile(r'^(.*?)([0-9]*)[.](.*)$')
@@ -27,6 +29,8 @@ class QM2BeamLine(NXBeamLine):
     def import_data(self, config_file, overwrite=False):
         self.config_file = nxopen(config_file)
         scans = self.raw_directory / self.sample / self.label
+        if is_wsl():
+            scans = Path(to_wsl(scans))
         y_size, x_size = self.config_file['f1/instrument/detector/shape']
         for scan in [s for s in scans.iterdir() if s.is_dir()]:
             scan_name = self.sample+'_'+scan.name+'.nxs'
@@ -80,6 +84,8 @@ class QM2BeamLine(NXBeamLine):
             self.image_directory = (self.raw_directory /
                                     self.sample / self.label /
                                     self.scan / scan_directory)
+            if is_wsl():
+                self.image_directory = Path(to_wsl(self.image_directory))
             entry_file = self.entry.nxname+'.h5temp'
             self.raw_file = self.directory / entry_file
             self.write_data()
